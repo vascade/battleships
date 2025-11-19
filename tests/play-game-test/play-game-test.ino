@@ -1,9 +1,16 @@
-void setup() {
-  // put your setup code here, to run once:
+String pp;
+String* split;
 
+void setup() {
+  Serial.begin(9600);
+  Serial.setTimeout(10000000);
+  delay(2000); // lets code upload
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-
+  // pp = Serial.readStringUntil('\n');
+  // pp = pp.substring(0, pp.length()-1);
+  // strSplit(pp, ",", &split);
+  // Serial.println(split[0]);
+  playGame();
 }
