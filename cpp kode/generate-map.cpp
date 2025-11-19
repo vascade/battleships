@@ -3,7 +3,7 @@
 #include <string>
 #include <random>
 
-const int mapSize = 8;
+const int mapSize = 16;
 
 int random(int min, int max) {
     std::random_device rd; // obtain a random number from hardware
@@ -13,32 +13,34 @@ int random(int min, int max) {
     return distr(gen);
 }
 
-void placeShips(bool map[mapSize][mapSize], int rowStart, int rowEnd, int colStart, int colEnd) {
+void placeShips(int map[mapSize][mapSize], int rowStart, int rowEnd, int colStart, int colEnd) {
     for (int i = rowStart; i <= rowEnd; i++) {
         for (int j = colStart; j <= colEnd; j++) {
-            map[i][j] = true;
+            map[i][j] = 1;
         }
     }
 }
 
-bool isAvailAround(bool map[mapSize][mapSize], int rowStart, int rowEnd, int colStart, int colEnd) {
+bool isAvailAround(int map[mapSize][mapSize], int rowStart, int rowEnd, int colStart, int colEnd) {
 
     for (int i = rowStart; i <= rowEnd; i++) {
         for (int j = colStart; j <= colEnd; j++) {
-            if (map[i][j]) {
+            if (map[i][j] == 1) {
                 return false;
             }
+            //else if (map[i][j] == 2) {
+            //    return false;
+            //}
         }
     }
     return true;
 }
 
-int checkDirection(int x, int y, int shipLength, int direction) {
+bool checkDirection(int x, int y, int shipLength, int direction) {
     if (direction == 0) {
         if (y-shipLength-1 < 0) {
             return false;
         }
-
         return true;
     }
     else if (direction == 2) {
@@ -59,18 +61,19 @@ int checkDirection(int x, int y, int shipLength, int direction) {
         }
         return true;
     }
+    return false;
 }
 
-void generateMap(int ships[], bool map[mapSize][mapSize]) {
+void generateMap(int ships[], int map[mapSize][mapSize]) {
     // Fill the map with false
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-            map[i][j] = false;
+            map[i][j] = 0;
         }
     }
 
     // for each ship
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < 5; i++) {
 
         bool availablePos = false;
 
@@ -85,11 +88,15 @@ void generateMap(int ships[], bool map[mapSize][mapSize]) {
             int colEnd = std::min(mapSize-1, startY+range);
 
             // Check if the random position is occupied by another ship.
+            std::cout << "Trying to find an available coordinate \n";
             if (!isAvailAround(map, rowStart, rowEnd, colStart, colEnd)) {
+                std::cout << "coordinate was not available. retrying...\n";
                 continue;
             }
+            std::cout << "Found available coordinate\n";
 
-            // Check if ship can fit
+            // Find a random direction for the ship
+            std::cout << "trying to find direction\n";
             int direction = random(0, 3);
             int counter = 0;
             bool foundDirection = false;
@@ -109,8 +116,55 @@ void generateMap(int ships[], bool map[mapSize][mapSize]) {
                 continue;
             }
 
-
-            // Check around ship
+            // Draw everything for "up" direction
+            std::cout << "Found direction: " + std::to_string(direction) + "\n";
+            if (direction == 0) {
+                availablePos = true;
+                for (int u = 0; u < ships[i]; u++) {
+                    placeShips(map, rowStart-u, rowEnd, colStart, colEnd);
+                    std::cout << "Drawn border\n";
+                }
+                for (int u = 0; u < ships[i]; u++) {
+                    map[startX-u][startY] = 2;
+                    std::cout << "Drawn ship\n";
+                }
+            }
+            // Draw everything for "down" direction
+            if (direction == 2) {
+                availablePos = true;
+                for (int u = 0; u < ships[i]; u++) {
+                    placeShips(map, rowStart, rowEnd+u, colStart, colEnd);
+                    std::cout << "Drawn border\n";
+                }
+                for (int u = 0; u < ships[i]; u++) {
+                    map[startX+u][startY] = 2;
+                    std::cout << "Drawn ship\n";
+                }
+            }
+            // Draw everything for "right" direction
+            if (direction == 1) {
+                availablePos = true;
+                for (int u = 0; u < ships[i]; u++) {
+                    placeShips(map, rowStart, rowEnd, colStart, colEnd+u);
+                    std::cout << "Drawn border\n";
+                }
+                for (int u = 0; u < ships[i]; u++) {
+                    map[startX][startY+u] = 2;
+                    std::cout << "Drawn ship\n";
+                }
+            }
+            // Draw everything for "right" direction
+            if (direction == 3) {
+                availablePos = true;
+                for (int u = 0; u < ships[i]; u++) {
+                    placeShips(map, rowStart, rowEnd, colStart-u, colEnd);
+                    std::cout << "Drawn border\n";
+                }
+                for (int u = 0; u < ships[i]; u++) {
+                    map[startX][startY-u] = 2;
+                    std::cout << "Drawn ship\n";
+                }
+            }
 
         }
     }
@@ -118,17 +172,20 @@ void generateMap(int ships[], bool map[mapSize][mapSize]) {
 
 int main() {
     std::string mapString = "";
-    bool myMap[mapSize][mapSize];
-    int ships[] = {3, 2, 1};
+    int myMap[mapSize][mapSize];
+    int ships[] = {3,3,4,5,2};
 
     generateMap(ships, myMap);
 
     for (int i = 0; i < mapSize; i++) {
         for (int j = 0; j < mapSize; j++) {
-            if (myMap[i][j]) {
+            if (myMap[i][j] == 2) {
                 mapString += "X";
             }
-            else {
+            else if (myMap[i][j] == 1) {
+                mapString += "#";
+            }
+            else if (myMap[i][j] == 0){
                 mapString += ".";
             }
         }
