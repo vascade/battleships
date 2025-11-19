@@ -1,6 +1,7 @@
 #include <Tone.h>
 #include <TimerOne.h>
 
+#define SEASHANTY2_LENGTH 149
 #define BUZZ_PIN 2
 
 struct Note
@@ -16,65 +17,33 @@ struct Song
   int currentNote;
 };
 
+Note* seaShanty2;
+
 Tone tonePlayer;
 Song currentSong;
-int bpm = 400; // song tempo in eighth notes
+int bpm = 400; // song tempo in sixteenth notes
 
 void setup() {
-  currentSong.notes = new Note[16]
-  {
-    {NOTE_A5, 1},
-    {0, 1},
-    {NOTE_E5, 1},
-    {NOTE_D5, 1},
-    {NOTE_CS5, 2},
-    {0, 1},
-    {NOTE_CS5, 1},
-    {NOTE_D5, 1},
-    {NOTE_E5, 1},
-    {NOTE_FS5, 1},
-    {NOTE_GS5, 1},
-    {NOTE_E5, 2},
-    {0, 2}
-  };
-  currentSong.notesLength = 16;
-  currentSong.currentNote = 0;
-  
+  initSongs();
+  setSong(seaShanty2, SEASHANTY2_LENGTH);
   tonePlayer.begin(BUZZ_PIN);
 
-  Timer1.initialize(60000000/bpm); // timer set to eighth notes in µs
+  Timer1.initialize(60000000/bpm); // timer set to sixteenth notes in µs
   Timer1.attachInterrupt(playSong);
 
   Serial.begin(9600);
 }
 
 void loop() {
-  Serial.println(currentSong.notes[currentSong.currentNote].frequency);
+  if (currentSong.notesLength <= currentSong.currentNote)
+  {
+    setSong(seaShanty2, SEASHANTY2_LENGTH);
+  }
 }
 
 void playSong()
 {
-  if (currentSong.notesLength <= currentSong.currentNote) //return;
-  {
-    currentSong.notes = new Note[16]
-    {
-      {NOTE_A5, 1},
-      {0, 1},
-      {NOTE_E5, 1},
-      {NOTE_D5, 1},
-      {NOTE_CS5, 2},
-      {0, 1},
-      {NOTE_CS5, 1},
-      {NOTE_D5, 1},
-      {NOTE_E5, 1},
-      {NOTE_FS5, 1},
-      {NOTE_GS5, 1},
-      {NOTE_E5, 2},
-      {0, 2}
-    };
-    currentSong.notesLength = 16;
-    currentSong.currentNote = 0;
-  }
+  if (currentSong.notesLength <= currentSong.currentNote) return;
 
   Note* targetNote = &currentSong.notes[currentSong.currentNote];
 
@@ -96,5 +65,17 @@ void playSong()
     }
     
     targetNote->duration--;
+  }
+}
+
+void setSong(Note* _song, int _songLength)
+{
+  currentSong.currentNote = 0;
+  currentSong.notesLength = _songLength;
+  currentSong.notes = new Note[_songLength];
+
+  for (int i = 0; i < _songLength; i++)
+  {
+    currentSong.notes[i] = {_song[i].frequency, _song[i].duration};
   }
 }
