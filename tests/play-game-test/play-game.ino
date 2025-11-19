@@ -39,7 +39,7 @@ int strSplit(String _str, String _delimiter, String* buffer);
 void playGame()
 {
   bool gameOver = false;
-  char* player = "";
+  String player = "";
   
   while (!gameOver)
   {
@@ -133,29 +133,30 @@ int* getInputCoordinates(String _player, bool (*_hits)[GRID_SIZE][GRID_SIZE], in
     {
       Serial.println("Bekræft affyring mod koordinater: (" + String(x+1) + ", " + String(y+1) + ")? (Y/N) ");
       
-      String answer = Serial.readBytes();
+      char* answer;
+      Serial.readBytes(answer, 1);
       
       while (
-        answer != 'Y' &&
-        answer != 'N' &&
-        answer != 'y' &&
-        answer != 'n')
+        *answer != 'Y' &&
+        *answer != 'N' &&
+        *answer != 'y' &&
+        *answer != 'n')
       {
-        answer = Serial.readBytes();
+        Serial.readBytes(answer, 1);
       }
 
-      if (answer = 'N')
+      if (*answer = 'N')
       {
         inputIsValid = false;
       }
     }
   }
 
-  coordinates[0] = x;
-  coordinates[1] = y;
+  _coordinates[0] = x;
+  _coordinates[1] = y;
 }
 
-void hit(bool (*_grid)[GRID_SIZE][GRID_SIZE], int _x, int _y)
+void hit(bool _grid[GRID_SIZE][GRID_SIZE], int _x, int _y)
 {
   _grid[_y][_x] = true;
 }
@@ -251,13 +252,13 @@ void renderBoards()
     }
   }
 
-  lines[0] = String(" ")
+  lines[0] = String(" ");
   for (int i = 0; i < GRID_SIZE; i++)
   {
     lines[0].concat("-");
   }
   
-  lines[0].concat("   "));
+  lines[0].concat("   ");
   for (int i = 0; i < GRID_SIZE; i++)
   {
     lines[0].concat("-");
@@ -271,19 +272,19 @@ void renderBoards()
         "|" + String(player2Board[i-1]) + "|");
   }
 
-  lines[GRID_SIZE+1] = String(" ")
+  lines[GRID_SIZE+1] = String(" ");
   for (int i = 0; i < GRID_SIZE; i++)
   {
     lines[GRID_SIZE+1].concat("-");
   }
   
-  lines[GRID_SIZE+1].concat("   "));
+  lines[GRID_SIZE+1].concat("   ");
   for (int i = 0; i < GRID_SIZE; i++)
   {
     lines[GRID_SIZE+1].concat("-");
   }
 
-  String result = String(lines[0] + "\n")
+  String result = String(lines[0] + "\n");
   for (int i = 1; i < GRID_SIZE+2; i++)
   {
     result.concat(lines[i]) + "\n";
