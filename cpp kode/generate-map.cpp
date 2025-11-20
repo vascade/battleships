@@ -183,9 +183,9 @@ int main() {
             if (myMap[i][j] == 2) {
                 mapString += "X";
             }
-            //else if (myMap[i][j] == 1) {
-            //    mapString += "#";
-            //}
+            else if (myMap[i][j] == 1) {
+                mapString += "#";
+            }
             else {
                 mapString += ".";
             }
