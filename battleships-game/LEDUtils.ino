@@ -1,7 +1,14 @@
-void setLEDXY(Adafruit_NeoPixel* ledStrip, int x, int y, uint32_t color)
+void setLEDXY(Adafruit_NeoPixel* ledStrip, int x, int y, uint32_t color, int startIndex)
 {
-  ledStrip->clear();
-  ledStrip->setPixelColor(x + y*16, color);
+  int index;
+  if (y % 2 == 0) {
+    index = y * mapSize + (mapSize - 1 - x);
+  } 
+  else {
+    index = y * mapSize + x;
+  }
+
+  ledStrip->setPixelColor(index + startIndex, color);
   ledStrip->show();
   Serial.println(x);
 }

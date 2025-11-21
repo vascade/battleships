@@ -1,26 +1,32 @@
+#include <Adafruit_NeoPixel.h>
+
 const int mapSize = 16;
 const int randPin = 0;
+Adafruit_NeoPixel matrix(512, 2, NEO_GRB + NEO_KHZ800);
 
 void setup() {
-    Serial.begin(115200);
-    String mapString = "";
+    matrix.begin();
+
+    matrix.clear();
     // Start her
-    int myMap[mapSize][mapSize];
-    generateMap(myMap);
+    int myMap1[mapSize][mapSize];
+    int myMap2[mapSize][mapSize];
+
+    generateMap(myMap1);
+    generateMap(myMap2);
     // Bom, nu har du et tilfældigt map.
 
     for (int i = 0; i < mapSize; i++) {
       for (int j = 0; j < mapSize; j++) {
-          if (myMap[i][j] == 2) {
-              mapString += "X";
+          if (myMap1[i][j] == 2) {
+              setLEDXY(&matrix, j, i, matrix.Color(30, 0, 30), 0);
           }
-          else {
-              mapString += ".";
+          if (myMap2[i][j] == 2) {
+              setLEDXY(&matrix, j, i, matrix.Color(30, 0, 30), 256);
           }
       }
-      mapString += "\n";
+
   }
-  Serial.println(mapString);
 }
 
 void loop() {
