@@ -5,8 +5,8 @@
 
 #define KP_ROWS 4
 #define KP_COLS 4
-#define LED_PIN 6
-#define NUM_LEDS 64
+#define LED_PIN 2
+#define NUM_LEDS 256
 #define COLOR_ORDER GRB
 #define LED_TYPE WS2812B
 
@@ -47,21 +47,20 @@ void loop() {
 
   // if (key) Serial.println(key);
 
-  // for (int i = 0; i < 8; i++)
-  // {
-  //   for(int j = 0; j < 8; j++)
-  //   {
-  //     strip.clear();
-  //     setLEDXY(strip, j, i, strip.Color(128, 0, 128));
-  //     delay(50);
-  //   }
-  //   // strip.clear();
-  //   // strip.setPixelColor(i, 128, 0, 128);
-  //   // strip.show();
-  //   // delay(50);
-  // }
-  setLEDXY(strip, 1, 2, strip.Color(128, 0, 128));
-  delay(50);
-  setLEDXY(strip, 2, 2, strip.Color(128, 0, 128));
-  delay(50);
+  for (int i = 0; i < 16; i++)
+  {
+    for(int j = 0; j < 16; j++)
+    {
+      setLEDXY(&strip, j, i, strip.Color(10, 0, 10));
+      delay(50);
+    }
+    // strip.clear();
+    // strip.setPixelColor(i, 128, 0, 128);
+    // strip.show();
+    // delay(50);
+  }
+  // setLEDXY(&strip, 1, 2, strip.Color(10, 0, 10));
+  // delay(50);
+  // setLEDXY(&strip, 2, 2, strip.Color(10, 0, 10));
+  // delay(50);
 }
