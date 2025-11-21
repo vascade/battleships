@@ -35,9 +35,10 @@ bool checkDirection(int x, int y, int shipLength, int direction) {
     return false;
 }
 
-void generateMap(int map[mapSize][mapSize]) {
+void generateMap(bool mapBuffer[mapSize][mapSize]) {
     randomSeed(analogRead(randPin));
     int ships[] = {5, 4, 4, 4, 4, 3, 3, 3, 3, 2};
+    int map[mapSize][mapSize];
 
     // Fill the map with false
     for (int i = 0; i < mapSize; i++) {
@@ -152,6 +153,13 @@ void generateMap(int map[mapSize][mapSize]) {
             }
             exitNow:
             continue;
+        }
+    }
+
+    for (int i = 0; i < mapSize; i++) {
+        for (int j = 0; j < mapSize; j++) {
+            if (map[i][j] < 2) mapBuffer[i][j] = false;
+            else mapBuffer[i][j] = true;
         }
     }
 }

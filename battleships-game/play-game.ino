@@ -1,88 +1,75 @@
-// #define GRID_SIZE 4
+uint32_t noColor = LEDMatrixes.Color(0, 0, 0);
+uint32_t shipColor = LEDMatrixes.Color(0, 0, 10);
+uint32_t ownHitColor = LEDMatrixes.Color(10, 0, 0);
+uint32_t ownMissColor = LEDMatrixes.Color(0, 10, 0);
+uint32_t oppHitColor = LEDMatrixes.Color(0, 10, 0);
+uint32_t oppMissColor = LEDMatrixes.Color(10, 0, 0);
 
-// bool player1Turn = true;
+bool player1Turn = true;
 
-// bool player1Ships[GRID_SIZE][GRID_SIZE] = {
-//   {false, false, true, true},
-//   {true, false, false, false},
-//   {true, false, true, false},
-//   {true, false, true, false}
-// };
+bool player1Ships[mapSize][mapSize];
+bool player2Ships[mapSize][mapSize];
+bool player1Hits[mapSize][mapSize];
+bool player2Hits[mapSize][mapSize];
 
-// bool player2Ships[GRID_SIZE][GRID_SIZE] = {
-//   {false, false, true, true},
-//   {true, false, false, false},
-//   {true, false, true, false},
-//   {true, false, true, false}
-// };
+int* getInputCoordinates(String _player, bool (*_hits)[mapSize][mapSize], int _coordinates[2]);
+void hit(bool (*_grid)[mapSize][mapSize], int _x, int _y);
+bool hasLost(bool (*_hits)[mapSize][mapSize], bool (*_ships)[mapSize][mapSize]);
+void renderBoards();
 
-// bool player1Hits[GRID_SIZE][GRID_SIZE] = {
-//   {false, false, false, false},
-//   {false, false, false, false},
-//   {false, false, false, false},
-//   {false, false, false, false}
-// };
+void playGame()
+{
+  bool gameOver = false;
+  String player = "";
 
-// bool player2Hits[GRID_SIZE][GRID_SIZE] = {
-//   {false, false, false, false},
-//   {false, false, false, false},
-//   {false, false, false, false},
-//   {false, false, false, false}
-// };
-
-// int* getInputCoordinates(String _player, bool (*_hits)[GRID_SIZE][GRID_SIZE], int _coordinates[2]);
-// void hit(bool (*_grid)[GRID_SIZE][GRID_SIZE], int _x, int _y);
-// bool hasLost(bool (*_hits)[GRID_SIZE][GRID_SIZE], bool (*_ships)[GRID_SIZE][GRID_SIZE]);
-// void renderBoards();
-// int strSplit(String _str, String _delimiter, String* buffer);
-
-// void playGame()
-// {
-//   bool gameOver = false;
-//   String player = "";
+  generateMap(player1Ships);
+  generateMap(player2Ships);
   
-//   while (!gameOver)
-//   {
-//     renderBoards();
+  while (!gameOver)
+  {
+    renderBoards();
 
-//     if (player1Turn) player = "Spiller 1";
-//     else player = "Spiller 2";
+    if (player1Turn) player = "Spiller 1";
+    else player = "Spiller 2";
 
-//     bool (*targetHits)[GRID_SIZE][GRID_SIZE];
+    bool (*targetHits)[mapSize][mapSize];
 
-//     if (player1Turn) targetHits = &player2Hits;
-//     else targetHits = &player1Hits;
+    if (player1Turn) targetHits = &player2Hits;
+    else targetHits = &player1Hits;
 
-//     bool (*targetShips)[GRID_SIZE][GRID_SIZE];
-//     if (player1Turn) targetShips = &player2Ships;
-//     else targetShips = &player2Ships;
+    bool (*targetShips)[mapSize][mapSize];
+    if (player1Turn) targetShips = &player2Ships;
+    else targetShips = &player1Ships;
     
-//     int coordinates[2];
-//     getInputCoordinates(player, targetHits, coordinates);
+    // int coordinates[2];
+    // getInputCoordinates(player, targetHits, coordinates);
     
-//     int x = coordinates[0];
-//     int y = coordinates[1];
+    // int x = coordinates[0];
+    // int y = coordinates[1];
 
-//     hit(targetHits, x, y);
+    // hit(targetHits, x, y);
 
-//     if (targetShips[y][x])
-//     {
-//       Serial.println("Træffer!");
-//     }
-//     else
-//     {
-//       Serial.println("Forbier!");
-//       player1Turn = !player1Turn;
-//     }
+    // if (targetShips[y][x])
+    // {
+    //   Serial.println("Træffer!");
+    // }
+    // else
+    // {
+    //   Serial.println("Forbier!");
+    //   player1Turn = !player1Turn;
+    // }
 
-//     gameOver = hasLost(targetHits, targetShips);
-//   }
+    delay(1000);
+    player1Turn = !player1Turn;
 
-//   Serial.print(player);
-//   Serial.println(" har vundet!");
-// }
+    // gameOver = hasLost(targetHits, targetShips);
+  }
 
-// int* getInputCoordinates(String _player, bool (*_hits)[GRID_SIZE][GRID_SIZE], int _coordinates[2])
+  Serial.print(player);
+  Serial.println(" har vundet!");
+}
+
+// int* getInputCoordinates(String _player, bool (*_hits)[mapSize][mapSize], int _coordinates[2])
 // {
 //   bool inputIsValid = false;
 //   int x = 0;
@@ -125,11 +112,11 @@
 //       x = atoi(splitInput[0]);	
 //       y = atoi(splitInput[1]);
 
-//       if (x < 0 || GRID_SIZE <= x ||
-//        y < 0 || GRID_SIZE <= y)
+//       if (x < 0 || mapSize <= x ||
+//        y < 0 || mapSize <= y)
 //       {
 //         inputIsValid = false;
-//         errorString = "koordinater skal være hele tal mellem 1 og " + String(GRID_SIZE) + " x: " + String(x) + " y: " + String(y);
+//         errorString = "koordinater skal være hele tal mellem 1 og " + String(mapSize) + " x: " + String(x) + " y: " + String(y);
 //       }
 //     }
 
@@ -174,207 +161,106 @@
 //   _coordinates[1] = y;
 // }
 
-// void hit(bool _grid[GRID_SIZE][GRID_SIZE], int _x, int _y)
-// {
-//   _grid[_y][_x] = true;
-// }
+void hit(bool _grid[mapSize][mapSize], int _x, int _y)
+{
+  _grid[_y][_x] = true;
+}
 
-// bool hasLost(bool (*_hits)[GRID_SIZE][GRID_SIZE], bool (*_ships)[GRID_SIZE][GRID_SIZE])
-// {
-//   for (int i = 0; i < GRID_SIZE; i++)
-//   {
-//     for (int j = 0; j < GRID_SIZE; j++)
-//     {
-//       if (_ships[i][j] && !_hits[i][j]) return false;
-//     }
-//   }
-//   return true;
-// }
+bool hasLost(bool (*_hits)[mapSize][mapSize], bool (*_ships)[mapSize][mapSize])
+{
+  for (int i = 0; i < mapSize; i++)
+  {
+    for (int j = 0; j < mapSize; j++)
+    {
+      if (_ships[i][j] && !_hits[i][j]) return false;
+    }
+  }
+  return true;
+}
 
-// void renderBoards()
-// {
-//   String lines[GRID_SIZE + 2];
-//   String player1Board[GRID_SIZE][GRID_SIZE];
-//   String player2Board[GRID_SIZE][GRID_SIZE];
+void renderBoards()
+{
+  Serial.println("Rendering...");
+  uint32_t player1Board[mapSize][mapSize];
+  uint32_t player2Board[mapSize][mapSize];
 
-//   if (player1Turn)
-//   {
-//     for (int i = 0; i < GRID_SIZE; i++)
-//     {
-//       for (int j = 0; j < GRID_SIZE; j++)
-//       {
-//         if (player2Hits[i][j] == false &&
-//           player2Ships[i][j] == false)
-//         {
-//           player1Board[i][j] = ".";
-//           player2Board[i][j] = ".";
-//         }
-//         else if (
-//           player2Hits[i][j] == true &&
-//           player2Ships[i][j] == false)
-//         {
-//           player1Board[i][j] = "X";
-//           player2Board[i][j] = "X";
-//         }
-//         else if (
-//           player2Hits[i][j] == false &&
-//           player2Ships[i][j] == true)
-//         {
-//           player1Board[i][j] = ".";
-//           player2Board[i][j] = "#";
-//         }
-//         else if (
-//           player2Hits[i][j] == true &&
-//           player2Ships[i][j] == true)
-//         {
-//           player1Board[i][j] = "O";
-//           player2Board[i][j] = "O";
-//         }
-//       }
-//     }
-//   }
-//   else
-//   {
-//     for (int i = 0; i < GRID_SIZE; i++)
-//     {
-//       for (int j = 0; j < GRID_SIZE; j++)
-//       {
-//         if (player1Hits[i][j] == false &&
-//           player1Ships[i][j] == false)
-//         {
-//           player2Board[i][j] = ".";
-//           player1Board[i][j] = ".";
-//         }
-//         else if (
-//           player1Hits[i][j] == true &&
-//           player1Ships[i][j] == false)
-//         {
-//           player2Board[i][j] = "X";
-//           player1Board[i][j] = "X";
-//         }
-//         else if (
-//           player1Hits[i][j] == false &&
-//           player1Ships[i][j] == true)
-//         {
-//           player2Board[i][j] = ".";
-//           player1Board[i][j] = "#";
-//         }
-//         else if (
-//           player1Hits[i][j] == true &&
-//           player1Ships[i][j] == true)
-//         {
-//           player2Board[i][j] = "O";
-//           player1Board[i][j] = "O";
-//         }
-//       }
-//     }
-//   }
+  if (player1Turn)
+  {
+    for (int i = 0; i < mapSize; i++)
+    {
+      for (int j = 0; j < mapSize; j++)
+      {
+        if (player2Hits[i][j] == false &&
+          player2Ships[i][j] == false)
+        {
+          player1Board[i][j] = noColor;
+          player2Board[i][j] = noColor;
+        }
+        else if (
+          player2Hits[i][j] == true &&
+          player2Ships[i][j] == false)
+        {
+          player1Board[i][j] = oppMissColor;
+          player2Board[i][j] = ownMissColor;
+        }
+        else if (
+          player2Hits[i][j] == false &&
+          player2Ships[i][j] == true)
+        {
+          player1Board[i][j] = noColor;
+          player2Board[i][j] = shipColor;
+        }
+        else if (
+          player2Hits[i][j] == true &&
+          player2Ships[i][j] == true)
+        {
+          player1Board[i][j] = oppHitColor;
+          player2Board[i][j] = ownHitColor;
+        }
+      }
+    }
+  }
+  else
+  {
+    for (int i = 0; i < mapSize; i++)
+    {
+      for (int j = 0; j < mapSize; j++)
+      {
+        if (player1Hits[i][j] == false &&
+          player1Ships[i][j] == false)
+        {
+          player2Board[i][j] = noColor;
+          player1Board[i][j] = noColor;
+        }
+        else if (
+          player1Hits[i][j] == true &&
+          player1Ships[i][j] == false)
+        {
+          player2Board[i][j] = oppMissColor;
+          player1Board[i][j] = ownMissColor;
+        }
+        else if (
+          player1Hits[i][j] == false &&
+          player1Ships[i][j] == true)
+        {
+          player2Board[i][j] = noColor;
+          player1Board[i][j] = shipColor;
+        }
+        else if (
+          player1Hits[i][j] == true &&
+          player1Ships[i][j] == true)
+        {
+          player2Board[i][j] = oppHitColor;
+          player1Board[i][j] = ownHitColor;
+        }
+      }
+    }
+  }
 
-//   lines[0] = " ";
-//   for (int i = 0; i < GRID_SIZE; i++)
-//   {
-//     lines[0] += "-";
-//   }
-  
-//   lines[0] += "   ";
-//   for (int i = 0; i < GRID_SIZE; i++)
-//   {
-//     lines[0] += "-";
-//   }
+  LEDMatrixes.clear();
 
-//   for (int i = 1; i < GRID_SIZE+1; i++)
-//   {
-//     lines[i] = "|";
+  drawMap(&LEDMatrixes, player1Board, 0);
+  drawMap(&LEDMatrixes, player2Board, 256);
 
-//     for (int j = 0; j < GRID_SIZE; j++)
-//     {
-//       lines[i] += player1Board[i-1][j]; 
-//     }
-
-//     lines[i] += "| |"; 
-//     for (int j = 0; j < GRID_SIZE; j++)
-//     {
-//       lines[i] += player2Board[i-1][j];
-//     }
-
-//     lines[i] += "|";
-//   }
-
-//   lines[GRID_SIZE+1] = " ";
-//   for (int i = 0; i < GRID_SIZE; i++)
-//   {
-//     lines[GRID_SIZE+1] += "-";
-//   }
-  
-//   lines[GRID_SIZE+1] += "   ";
-//   for (int i = 0; i < GRID_SIZE; i++)
-//   {
-//     lines[GRID_SIZE+1] += "-";
-//   }
-
-//   String result = lines[0] + "\n";
-//   for (int i = 1; i < GRID_SIZE+2; i++)
-//   {
-//     result.concat(lines[i] + "\n");
-//   }
-
-//   Serial.println(result);
-// }
-
-// int strSplit(char* _str, String _delimiter, String** buffer)
-// {
-  
-//   // --------- dogshit ---------
-//   // int strLen = _str.length();
-//   // int delimiterLen = _delimiter.length();
-//   // int count = 0;
-  
-//   // int i = 0;
-//   // bool done = false;
-//   // while (!done && i < strLen)
-//   // {
-//   //   int index = _str.indexOf(_delimiter, i);
-
-//   //   if (index != -1)
-//   //   {
-//   //     i = index + delimiterLen;
-//   //     count++;
-//   //   }
-//   //   else
-//   //   {
-//   //     done = true;
-//   //   }
-//   // }
-
-//   // *buffer = new String[count+1];
-
-//   // i = 0;
-//   // int j = 0;
-//   // done = false;
-//   // while (!done && i < strLen)
-//   // {
-//   //   int index = _str.indexOf(_delimiter, i);
-
-//   //   if (index != -1)
-//   //   {
-//   //     Serial.println(i);
-//   //     Serial.println(index);
-//   //     Serial.println(j);
-//   //     *buffer[j] = _str.substring(i, index);
-//   //     i = index + delimiterLen;
-//   //     Serial.println(*buffer[j]);
-//   //     j++;
-//   //   }
-//   //   else
-//   //   {
-//   //     Serial.println(i);
-//   //     Serial.println(index);
-//   //     Serial.println(j);
-//   //     *buffer[j] = _str.substring(i);
-//   //     Serial.println(*buffer[j]);
-//   //     done = true;
-//   //   }
-//   // }
-
-//   // return count+1;
-// }
+  LEDMatrixes.show();
+}
