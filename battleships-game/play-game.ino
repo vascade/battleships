@@ -1,10 +1,3 @@
-uint32_t noColor = LEDMatrixes.Color(0, 0, 0);
-uint32_t shipColor = LEDMatrixes.Color(0, 0, 10);
-uint32_t ownHitColor = LEDMatrixes.Color(10, 0, 0);
-uint32_t ownMissColor = LEDMatrixes.Color(0, 10, 0);
-uint32_t oppHitColor = LEDMatrixes.Color(0, 10, 0);
-uint32_t oppMissColor = LEDMatrixes.Color(10, 0, 0);
-
 bool player1Turn = true;
 
 bool player1Ships[mapSize][mapSize];
@@ -40,130 +33,137 @@ void playGame()
     bool (*targetShips)[mapSize][mapSize];
     if (player1Turn) targetShips = &player2Ships;
     else targetShips = &player1Ships;
+
+    int coordinates[2];
+    if (player1Turn) getInputCoordinates(player, player1Keypad, targetHits, coordinates);
+    else getInputCoordinates(player, player2Keypad, targetHits, coordinates);
     
-    // int coordinates[2];
-    // getInputCoordinates(player, targetHits, coordinates);
-    
-    // int x = coordinates[0];
-    // int y = coordinates[1];
+    int x = coordinates[0];
+    int y = coordinates[1];
 
-    // hit(targetHits, x, y);
+    for (int i = 0; i < 4; i++)
+    {
+      renderBoards();
+      delay(500);
+      setLEDXY(x, y, selectColor, 0);
+      setLEDXY(x, y, selectColor, 256);
+      LEDMatrixes.show();
+      delay(500);
+    }
 
-    // if (targetShips[y][x])
-    // {
-    //   Serial.println("Træffer!");
-    // }
-    // else
-    // {
-    //   Serial.println("Forbier!");
-    //   player1Turn = !player1Turn;
-    // }
+    (*targetHits)[y][x] = true;
 
-    delay(1000);
-    player1Turn = !player1Turn;
+    if ((*targetShips)[y][x])
+    {
+      Serial.println("Træffer!");
+      renderBoards();
+      delay(2000);
+    }
+    else
+    {
+      Serial.println("Forbier!");
+      renderBoards();
+      delay(2000);
+      player1Turn = !player1Turn;
+    }
 
-    // gameOver = hasLost(targetHits, targetShips);
+    gameOver = hasLost(targetHits, targetShips);
   }
+  
+  renderBoards();
 
   Serial.print(player);
   Serial.println(" har vundet!");
+
+  clearAnimation();
+
+  for (int i = 0; i < mapSize; i++)
+  {
+    for (int j = 0; j < mapSize; j++)
+    {
+      player1Hits[i][j] = false;
+      player2Hits[i][j] = false;
+    }
+  }
 }
 
-// int* getInputCoordinates(String _player, bool (*_hits)[mapSize][mapSize], int _coordinates[2])
-// {
-//   bool inputIsValid = false;
-//   int x = 0;
-//   int y = 0;
-      
-//   while (!inputIsValid)
-//   {
-//     Serial.print(_player + " indtast koordinater (x, y): ");
-//     String errorString = "input skal angives som: x, y";
-
-//     char* serialInput = Serial.readBytesUntil('\n');
-//     char* input;
-//     serialInput.toCharArray(input, serialInput.length());
-
-//     char* splitInput[2];
-//     int splitCount = 0;
-
-//     char* token = strtok(input, ",");
-//     int i = 0;
-//     while (token != NULL && i <= 2)
-//     {
-//       if (i < 2)
-//       {
-//         splitInput[i] = token;
-//         token = strtok(NULL, ",");
-//       }
-//       i++;
-//     }
-
-//     Serial.println(splitInput[0]);
-//     // Serial.println(splitInput[1]);
-
-//     if (splitCount == 2)
-//     {
-//       inputIsValid = true;
-//     }
-    
-//     if (inputIsValid)
-//     {
-//       x = atoi(splitInput[0]);	
-//       y = atoi(splitInput[1]);
-
-//       if (x < 0 || mapSize <= x ||
-//        y < 0 || mapSize <= y)
-//       {
-//         inputIsValid = false;
-//         errorString = "koordinater skal være hele tal mellem 1 og " + String(mapSize) + " x: " + String(x) + " y: " + String(y);
-//       }
-//     }
-
-//     if (inputIsValid)
-//     {
-//       if (_hits[y][x])
-//       {
-//         inputIsValid = false;
-//         errorString = "koordinat allerede ramt." + String(" x: " + String(x) + " y: " + String(y));
-//       }
-//     }
-    
-//     if (!inputIsValid)
-//     {
-//       Serial.println("Ugyldigt input: " + errorString);
-//     }
-
-//     if (inputIsValid)
-//     {
-//       Serial.println("Bekræft affyring mod koordinater: (" + String(x+1) + ", " + String(y+1) + ")? (Y/N) ");
-      
-//       char* answer;
-//       Serial.readBytes(answer, 1);
-      
-//       while (
-//         *answer != 'Y' &&
-//         *answer != 'N' &&
-//         *answer != 'y' &&
-//         *answer != 'n')
-//       {
-//         Serial.readBytes(answer, 1);
-//       }
-
-//       if (*answer = 'N')
-//       {
-//         inputIsValid = false;
-//       }
-//     }
-//   }
-
-//   _coordinates[0] = x;
-//   _coordinates[1] = y;
-// }
-
-void hit(bool _grid[mapSize][mapSize], int _x, int _y)
+int* getInputCoordinates(String _player, Keypad _playerKeypad, bool (*_hits)[mapSize][mapSize], int _coordinates[2])
 {
-  _grid[_y][_x] = true;
+  bool coordinatesConfirmed = false;
+  int x = 0;
+  int y = 0;
+  char key;
+  char input[4];
+
+  while (!coordinatesConfirmed)
+  {
+    Serial.print(_player + " indtast koordinater (x, y): ");
+    
+    int numbersPressed = 0;
+    while (numbersPressed < 4)
+    {
+      key = _playerKeypad.waitForKey();
+
+      if (key == 'D' && 0 < numbersPressed)
+      {
+        numbersPressed--;
+      }
+
+      if (key < '0' || '9' < key) continue;
+
+      if (numbersPressed != 0 && numbersPressed != 2)
+      {
+        input[numbersPressed] = key;
+        Serial.print(key);
+        numbersPressed++;
+      }
+      else if (key == '0' || key == '1')
+      {
+        input[numbersPressed] = key;
+        Serial.print(key);
+        numbersPressed++;
+      }
+
+    }
+
+    x = ((input[0] - '0') * 10) + (input[1] - '0')-1;
+    y = ((input[2] - '0') * 10) + (input[3] - '0')-1;
+
+    if ((*_hits)[y][x])
+    {
+      Serial.println("\nMål allerede ramt.");
+    }
+    else
+    {
+      Serial.println("\nBekræft mål? (" + String(x+1) + ", " + String(y+1) + ")");
+      setLEDXY(x, y, selectColor, 0);
+      setLEDXY(x, y, selectColor, 256);
+      LEDMatrixes.show();
+
+      bool answer = false;
+      while(!answer)
+      {
+        key = _playerKeypad.getKey();
+
+        if (key == 'C')
+        {
+          answer = true;
+          coordinatesConfirmed = true;
+        }
+        else if (key == 'D')
+        {
+          answer = true;
+        }
+      }
+    }
+
+    setLEDXY(x, y, noColor, 0);
+    setLEDXY(x, y, noColor, 256);
+    renderBoards();
+  }
+
+  _coordinates[0] = x;
+  _coordinates[1] = y;
 }
 
 bool hasLost(bool (*_hits)[mapSize][mapSize], bool (*_ships)[mapSize][mapSize])
@@ -172,7 +172,7 @@ bool hasLost(bool (*_hits)[mapSize][mapSize], bool (*_ships)[mapSize][mapSize])
   {
     for (int j = 0; j < mapSize; j++)
     {
-      if (_ships[i][j] && !_hits[i][j]) return false;
+      if ((*_ships)[i][j] && !(*_hits)[i][j]) return false;
     }
   }
   return true;
@@ -180,7 +180,6 @@ bool hasLost(bool (*_hits)[mapSize][mapSize], bool (*_ships)[mapSize][mapSize])
 
 void renderBoards()
 {
-  Serial.println("Rendering...");
   uint32_t player1Board[mapSize][mapSize];
   uint32_t player2Board[mapSize][mapSize];
 
@@ -259,8 +258,8 @@ void renderBoards()
 
   LEDMatrixes.clear();
 
-  drawMap(&LEDMatrixes, player1Board, 0);
-  drawMap(&LEDMatrixes, player2Board, 256);
+  drawMap(player1Board, 0);
+  drawMap(player2Board, 256);
 
   LEDMatrixes.show();
 }

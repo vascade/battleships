@@ -1,8 +1,18 @@
 #include <Adafruit_NeoPixel.h>
+#include <Keypad.h>
+
+Adafruit_NeoPixel LEDMatrixes(512, 2, NEO_GRB + NEO_KHZ800);
+
+const uint32_t noColor = LEDMatrixes.Color(0, 0, 0);
+const uint32_t shipColor = LEDMatrixes.Color(0, 0, 5);
+const uint32_t ownHitColor = LEDMatrixes.Color(5, 0, 0);
+const uint32_t ownMissColor = LEDMatrixes.Color(0, 5, 0);
+const uint32_t oppHitColor = LEDMatrixes.Color(0, 5, 0);
+const uint32_t oppMissColor = LEDMatrixes.Color(5, 0, 0);
+const uint32_t selectColor = LEDMatrixes.Color(5, 2, 0);
 
 const int mapSize = 16;
 const int randPin = 0;
-Adafruit_NeoPixel LEDMatrixes(512, 2, NEO_GRB + NEO_KHZ800);
 
 void setup() {
   LEDMatrixes.begin();
