@@ -48,7 +48,7 @@ void generateMap(bool mapBuffer[mapSize][mapSize]) {
     }
 
     // for each ship
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1; i++) {
 
         bool availablePos = false;
 

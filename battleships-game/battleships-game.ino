@@ -99,6 +99,7 @@ void setup() {
 
   Timer1.initialize(60000000/bpm); // timer set to sixteenth notes in µs
   Timer1.attachInterrupt(playSong);
+  setSong(seaShanty2, SEASHANTY2_LENGTH);
 }
 
 void loop() {

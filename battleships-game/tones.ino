@@ -55,8 +55,8 @@ void playHit()
 {
   for (int j = 0; j < 100; j++)
   {
-    tonePlayer.play(random(NOTE_C2-j, NOTE_C3-j));
-    delay(50);
+    tonePlayer.play(random(NOTE_C2-j, NOTE_C3-j), 10);
+    delay(10);
   }
 
   tonePlayer.stop();

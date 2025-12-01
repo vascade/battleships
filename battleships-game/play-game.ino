@@ -18,8 +18,6 @@ void playGame()
 {
   bool gameOver = false;
 
-  setSong(seaShanty2, SEASHANTY2_LENGTH);
-
   generateMap(player1Ships);
   generateMap(player2Ships);
 
@@ -94,8 +92,6 @@ void playGame()
 
     gameOver = hasLost(targetHits, targetShips);
   }
-  
-  setSong(seaShanty2, SEASHANTY2_LENGTH);
 
   renderBoards();
 
@@ -103,6 +99,8 @@ void playGame()
   LCDClearPrint(player2LCD, currentPlayer + " har vundet!");
 
   clearAnimation();
+  
+  setSong(seaShanty2, SEASHANTY2_LENGTH);
 
   for (int i = 0; i < mapSize; i++)
   {
